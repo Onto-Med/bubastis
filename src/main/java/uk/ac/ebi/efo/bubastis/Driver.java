@@ -3,6 +3,8 @@ package uk.ac.ebi.efo.bubastis;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 import java.io.File;
 
@@ -20,6 +22,8 @@ class Driver {
 
         Object ontologyObject1 = new Object();
         Object ontologyObject2 = new Object();
+        IRI label_property;
+        IRI synonym_property;
 
         //create options
         Options options = new Options();
@@ -30,14 +34,20 @@ class Driver {
         Option ontology2 = new Option("ontology2", true, "ontology 2 location");
         ontology2.setRequired(true);
         Option outputFile = new Option("output", true, "output file location");
+        Option labelIRI = new Option("label", true, "property used for labels");
+        Option synIRI = new Option("syn", true, "property used for synonyms");
         Option outputFormat = new Option("format", true, "output format");
         Option xsltPath = new Option("xslt", true, "location of xslt for xml output");
+
 
         options.addOption(ontology1);
         options.addOption(ontology2);
         options.addOption(outputFile);
+        options.addOption(labelIRI);
+        options.addOption(synIRI);
         options.addOption(outputFormat);
         options.addOption(xsltPath);
+
 
         // if entityExpansionLimit hasn't already been set, set it
         // This is very important otherwise RDFXMLParser
@@ -101,6 +111,17 @@ class Driver {
                     }
                 }
             }
+        
+        if ( line.hasOption( "label" ) ) 
+        	label_property = IRI.create(line.getOptionValue("label"));
+        else
+        	label_property = OWLRDFVocabulary.RDFS_LABEL.getIRI();
+
+        if ( line.hasOption( "syn" ) )
+        	synonym_property = IRI.create(line.getOptionValue("syn"));
+        else
+        	synonym_property = IRI.create("http://www.w3.org/2004/02/skos/core#altLabel") ;
+        
 
         //do diff
         CompareOntologies comparer = new CompareOntologies();
@@ -108,11 +129,11 @@ class Driver {
             System.out.println("Ontology1 is a string");
             if (ontologyObject2 instanceof String){
                 //do diff with strings
-                comparer.doFindAllChanges(ontologyObject1.toString(), ontologyObject2.toString());
+                comparer.doFindAllChanges(ontologyObject1.toString(), ontologyObject2.toString(), label_property, synonym_property);
             }
             else{
                //do diff with second ontology as file
-                comparer.doFindAllChanges(ontologyObject1.toString(), new File(ontologyObject2.toString()));
+                comparer.doFindAllChanges(ontologyObject1.toString(), new File(ontologyObject2.toString()), label_property, synonym_property);
             }
         }
         //ontology 1 is a file
@@ -120,11 +141,11 @@ class Driver {
 
             if (ontologyObject2 instanceof String){
                 //do diff with ontology 1 as file, ontology 2 as url
-                comparer.doFindAllChanges(new File(ontologyObject1.toString()), ontologyObject2.toString());
+                comparer.doFindAllChanges(new File(ontologyObject1.toString()), ontologyObject2.toString(), label_property, synonym_property);
             }
             else{
                 //do diff with both files
-                comparer.doFindAllChanges(new File(ontologyObject1.toString()), new File(ontologyObject2.toString()));
+                comparer.doFindAllChanges(new File(ontologyObject1.toString()), new File(ontologyObject2.toString()), label_property, synonym_property);
 
 
             }
