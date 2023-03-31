@@ -33,14 +33,15 @@ public class CompareOntologies {
     private ArrayList<OWLClassAxiomsInfo> deletedClasses = new ArrayList<OWLClassAxiomsInfo>();
     private String lineSeparator = System.getProperty("line.separator");
     public OntologyChangesBean changeBean = new OntologyChangesBean();
-
+    
+    IRI labelIRI;
+    IRI synIRI;
 
     /**
      * default constructor
      */
     public void compareOntologies() {
     }
-
 
     /**
      * Perform diff on two ontologies supplying just two ontology locations as strings.
@@ -49,7 +50,7 @@ public class CompareOntologies {
      * @param ontology2Location - location of second ontology - the newer ontology in most cases
      * @throws OWLOntologyCreationException
      */
-    public void doFindAllChanges(String ontology1Location, String ontology2Location) throws Ontology1LoadException, Ontology2LoadException {
+    public void doFindAllChanges(String ontology1Location, String ontology2Location, IRI labelIRI, IRI synIRI) throws Ontology1LoadException, Ontology2LoadException {
 
         //Create 2 OWLOntologyManager which manages a set of ontologies
         //An ontology is unique within an ontology manager.
@@ -58,7 +59,6 @@ public class CompareOntologies {
         OWLOntologyManager manager2 = OWLManager.createOWLOntologyManager();
         OWLOntology ontology1;
         OWLOntology ontology2;
-
 
         //load ontology1 from URL using the OntologyLoader class
         //can also load file in form for example: "file:/H://experimentalfactors.owl"
@@ -93,7 +93,7 @@ public class CompareOntologies {
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
-                ontology1, ontology2);
+                ontology1, ontology2, labelIRI, synIRI);
 
     }
 
@@ -107,7 +107,7 @@ public class CompareOntologies {
      * @throws Ontology1LoadException
      * @throws OWLOntologyCreationException
      */
-    public void doFindAllChanges(File ontologyFile1, File ontologyFile2) throws Ontology1LoadException, Ontology2LoadException {
+    public void doFindAllChanges(File ontologyFile1, File ontologyFile2, IRI labelIRI, IRI synIRI) throws Ontology1LoadException, Ontology2LoadException {
         //Create 2 OWLOntologyManager which manages a set of ontologies
         //An ontology is unique within an ontology manager.
         //To load multiple copies of an ontology, multiple managers are required.
@@ -144,7 +144,7 @@ public class CompareOntologies {
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
-                ontology1, ontology2);
+                ontology1, ontology2, labelIRI, synIRI);
 
     }
 
@@ -156,7 +156,7 @@ public class CompareOntologies {
      * @param ontologyFile2     - second ontology to be read from file
      * @throws OWLOntologyCreationException
      */
-    public void doFindAllChanges(String ontology1Location, File ontologyFile2) throws OWLOntologyCreationException {
+    public void doFindAllChanges(String ontology1Location, File ontologyFile2, IRI labelIRI, IRI synIRI) throws OWLOntologyCreationException {
         //set locations of ontologies for later displaying
         changeBean.setOntology1Location(ontology1Location);
         changeBean.setOntology2Location(ontologyFile2.toString());
@@ -166,6 +166,7 @@ public class CompareOntologies {
         //To load multiple copies of an ontology, multiple managers are required.
         OWLOntologyManager manager1 = OWLManager.createOWLOntologyManager();
         OWLOntologyManager manager2 = OWLManager.createOWLOntologyManager();
+
 
         System.out.println("trying load now");
 
@@ -188,7 +189,7 @@ public class CompareOntologies {
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
-                ontology1, ontology2);
+                ontology1, ontology2, labelIRI, synIRI);
 
 
     }
@@ -201,7 +202,7 @@ public class CompareOntologies {
      * @param ontology2Location - second ontology to be read from URL
      * @throws OWLOntologyCreationException
      */
-    public void doFindAllChanges(File ontologyFile1, String ontology2Location) throws OWLOntologyCreationException {
+    public void doFindAllChanges(File ontologyFile1, String ontology2Location, IRI labelIRI, IRI synIRI) throws OWLOntologyCreationException {
         //set locations of ontologies for later displaying
         changeBean.setOntology1Location(ontologyFile1.toString());
         changeBean.setOntology2Location(ontology2Location);
@@ -233,7 +234,7 @@ public class CompareOntologies {
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
-                ontology1, ontology2);
+                ontology1, ontology2, labelIRI, synIRI);
 
     }
 
@@ -248,9 +249,11 @@ public class CompareOntologies {
      * @param ont2     second ontology to compare to ont1 (the newer ontology in most cases)
      */
     public void doFindAllChanges(OWLOntologyManager manager1, OWLOntologyManager manager2,
-                                 OWLOntology ont1, OWLOntology ont2) {
+                                 OWLOntology ont1, OWLOntology ont2, IRI labelIRI, IRI synIRI) {
 
-        this.classesWithDifferences = compareAllClassAxioms(manager1, ont1, manager2, ont2);
+        this.labelIRI = labelIRI;
+    	this.synIRI = synIRI;
+    	this.classesWithDifferences = compareAllClassAxioms(manager1, ont1, manager2, ont2);
         this.newClasses = findNewClasses(manager1, ont1, manager2, ont2);
         this.setDeletedClasses(findDeletedClasses(manager1, ont1, manager2, ont2));
 
@@ -274,7 +277,12 @@ public class CompareOntologies {
     public ArrayList<OWLClassAxiomsInfo> compareAllClassAxioms(OWLOntologyManager manager1,
                                                                OWLOntology ont1, OWLOntologyManager manager2, OWLOntology ont2) {
 
-        ArrayList<OWLClassAxiomsInfo> classDifferences = new ArrayList<OWLClassAxiomsInfo>();
+        
+    	OWLDataFactory df = manager1.getOWLDataFactory();
+    	OWLAnnotationProperty synProperty = df.getOWLAnnotationProperty(synIRI);
+    	OWLAnnotationProperty labelProperty = df.getOWLAnnotationProperty(labelIRI);
+
+    	ArrayList<OWLClassAxiomsInfo> classDifferences = new ArrayList<OWLClassAxiomsInfo>();
         //get all classes from first ontology and walk through them
         for (OWLClass ont1Class : ont1.getClassesInSignature()) {
 
@@ -285,40 +293,65 @@ public class CompareOntologies {
             Set<OWLClassAxiom> ont1ClassAxiomsSet = ont1.getAxioms(ont1Class);
             //get all the axioms from this 2nd ontology class
             Set<OWLClassAxiom> ont2ClassAxiomsSet = ont2.getAxioms(ont2Class);
-
-
-
+            
+            Collection<OWLAnnotation> ont1ClassAnnotationPropertiesSet = 
+            		EntitySearcher.getAnnotations(ont1Class.getIRI(), ont1, synProperty);
+            ont1ClassAnnotationPropertiesSet.addAll(EntitySearcher.getAnnotations(ont1Class.getIRI(), ont1, labelProperty));
+            Collection<OWLAnnotation> ont2ClassAnnotationPropertiesSet =
+            		EntitySearcher.getAnnotations(ont1Class.getIRI(), ont2, synProperty);
+            ont2ClassAnnotationPropertiesSet.addAll(EntitySearcher.getAnnotations(ont1Class.getIRI(), ont2, labelProperty));
+            if (ont2ClassAnnotationPropertiesSet.size() != 0) {
+            	if (!ont1ClassAnnotationPropertiesSet.equals(ont2ClassAnnotationPropertiesSet)) {
+            		Set<OWLAnnotation> newAnnotations =
+                			new HashSet<OWLAnnotation>(ont2ClassAnnotationPropertiesSet);
+                	newAnnotations.removeAll(ont1ClassAnnotationPropertiesSet);
+                	Set<OWLAnnotation> deletedAnnotations =
+                			new HashSet<OWLAnnotation>(ont1ClassAnnotationPropertiesSet);
+                	deletedAnnotations.removeAll(ont2ClassAnnotationPropertiesSet);
+                	OWLClassAxiomsInfo tempDiffs = new OWLClassAxiomsInfo(ont1Class.getIRI(), newAnnotations, 
+                			deletedAnnotations, labelProperty, synProperty);
+                	OWLAnnotationProperty label =
+                			df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
+                	Set<OWLAnnotation> classLabels =
+                			new HashSet<>(EntitySearcher.getAnnotations(ont1Class, ont1, label));
+                	tempDiffs.setClassLabels(classLabels);
+                	classDifferences.add(tempDiffs);
+            	}
+            }
+            
             //not sure why these are here? JM
             //OWLClass o = new OWLClassImpl();
             //o.getObjectPropertiesInSignature();
+            
+            if (ont2ClassAxiomsSet.size() != 0) {
+            	//now compare the two sets of axioms to see if they are different
+                boolean setEqual = ont1ClassAxiomsSet.equals(ont2ClassAxiomsSet);
 
-            //now compare the two sets of axioms to see if they are different
-            boolean setEqual = ont1ClassAxiomsSet.equals(ont2ClassAxiomsSet);
+                //if they ARE different then calculate the changes
+                if (!setEqual) {
+                    //calculate new axioms added to ontology 2 with respect to ontology 1
+                    //i.e. those axioms which appear in ontology 2  but not ontology 1
+                    Set<OWLClassAxiom> newAxioms = new HashSet<OWLClassAxiom>(ont2ClassAxiomsSet);
+                    newAxioms.removeAll(ont1ClassAxiomsSet);
+                    //calculate axioms that have been deleted from ontology 1 with respect to ontology 2
+                    //i.e. those axioms which appear in ontology 1 but not ontology 2
+                    Set<OWLClassAxiom> deletedAxioms = new HashSet<OWLClassAxiom>(ont1ClassAxiomsSet);
+                    deletedAxioms.removeAll(ont2ClassAxiomsSet);
 
-            //if they ARE different then calculate the changes
-            if (!setEqual) {
-                //calculate new axioms added to ontology 2 with respect to ontology 1
-                //i.e. those axioms which appear in ontology 2  but not ontology 1
-                Set<OWLClassAxiom> newAxioms = new HashSet<OWLClassAxiom>(ont2ClassAxiomsSet);
-                newAxioms.removeAll(ont1ClassAxiomsSet);
-                //calculate axioms that have been deleted from ontology 1 with respect to ontology 2
-                //i.e. those axioms which appear in ontology 1 but not ontology 2
-                Set<OWLClassAxiom> deletedAxioms = new HashSet<OWLClassAxiom>(ont1ClassAxiomsSet);
-                deletedAxioms.removeAll(ont2ClassAxiomsSet);
+                    //create information for the new class
+                    OWLClassAxiomsInfo tempDiffs = new OWLClassAxiomsInfo(ont1Class.getIRI(), newAxioms, deletedAxioms, ont1);
 
-                //create information for the new class
-                OWLClassAxiomsInfo tempDiffs = new OWLClassAxiomsInfo(ont1Class.getIRI(), newAxioms, deletedAxioms, ont1);
+                    //get the rdfs label(s) of the class in question, first create IRI for rdfs label
+                    //and create the corresponding OWLAnnotationProperty
+                    //OWLDataFactory df = manager1.getOWLDataFactory();
+                    OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
 
-                //get the rdfs label(s) of the class in question, first create IRI for rdfs label
-                //and create the corresponding OWLAnnotationProperty
-                OWLDataFactory df = manager1.getOWLDataFactory();
-                OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
+                    Set<OWLAnnotation> classLabels = new HashSet<>(EntitySearcher.getAnnotations(ont1Class,ont1,label));
+                    //add rdfs labels info to the class information
+                    tempDiffs.setClassLabels(classLabels);
 
-                Set<OWLAnnotation> classLabels = new HashSet<>(EntitySearcher.getAnnotations(ont1Class,ont1,label));
-                //add rdfs labels info to the class information
-                tempDiffs.setClassLabels(classLabels);
-
-                classDifferences.add(tempDiffs);
+                    classDifferences.add(tempDiffs);
+                }
             }
         }
         return classDifferences;

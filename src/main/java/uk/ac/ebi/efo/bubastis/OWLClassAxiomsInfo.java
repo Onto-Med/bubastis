@@ -36,7 +36,10 @@ public class OWLClassAxiomsInfo implements Serializable{
 	private Set<OWLClassAxiom> deletedClassAxiomsSet;
 	private Set<String> newClassAxiomsAsLabels;
 	private Set<String> deletedClassAxiomsAsLabels;
-
+	private Set<OWLAnnotation> newAnnotationsSet;
+	private Set<OWLAnnotation> deletedAnnotationsSet;
+	private OWLAnnotationProperty labelProperty;
+	private OWLAnnotationProperty synProperty;
 	
 	
 	//constructor
@@ -66,6 +69,18 @@ public class OWLClassAxiomsInfo implements Serializable{
 		this.deletedClassAxiomsSet = deletedClassAxiomsSet;
 	}
 	
+	
+	//constructor
+	public OWLClassAxiomsInfo(IRI classIRI, Set<OWLAnnotation> newAnnotationsSet, 
+							  Set<OWLAnnotation> deletedAnnotationsSet, OWLAnnotationProperty labelProperty,
+		      				  OWLAnnotationProperty synProperty) {
+		this.classIRI = classIRI;
+		this.labelProperty = labelProperty;
+		this.synProperty = synProperty;
+		
+		this.newAnnotationsSet = newAnnotationsSet;
+		this.deletedAnnotationsSet = deletedAnnotationsSet;
+	}
 	
 	//constructor
 	public OWLClassAxiomsInfo(IRI classIRI, Set<OWLClassAxiom> newClassAxiomsSet, OWLOntology ontology) {
@@ -140,6 +155,15 @@ public class OWLClassAxiomsInfo implements Serializable{
 		return deletedClassAxiomsAsLabels;
 	}
 	
+	//get method to return the deleted annotations
+	public Set<String> getDeletedAnnotations(){
+		return getLexicalAnnotationsAsStrings(deletedAnnotationsSet);
+	}
+	
+	//get method to return the new annotations
+	public Set<String> getNewAnnotations(){
+		return getLexicalAnnotationsAsStrings(newAnnotationsSet);
+	}
 	
 	public String getIRIAsString(){
 		String uriAsString = this.classIRI.toString();
@@ -172,10 +196,9 @@ public class OWLClassAxiomsInfo implements Serializable{
 		System.out.println("Class ID  "+ this.classIRI);
 		rdfsLabelWalkthrough(this.classLabels);
 		
-		if (newClassAxiomsSet != null){
-			if(!newClassAxiomsSet.isEmpty()){
-				setWalkthrough(this.newClassAxiomsSet, "+");
-				//display same axioms with labels showing
+		if (newAnnotationsSet != null){
+			if(!newAnnotationsSet.isEmpty()){
+				setWalkthrough(this.newAnnotationsSet, "+");
 			}
 		}
 		if (newClassAxiomsAsLabels != null){
@@ -184,9 +207,9 @@ public class OWLClassAxiomsInfo implements Serializable{
 				setWalkthrough(this.newClassAxiomsAsLabels, "+");
 			}
 		}	
-		if (deletedClassAxiomsSet != null){
-			if (!deletedClassAxiomsSet.isEmpty()){
-				setWalkthrough(this.deletedClassAxiomsSet, "-");
+		if (deletedAnnotationsSet  != null){
+			if (!deletedAnnotationsSet .isEmpty()){
+				setWalkthrough(this.deletedAnnotationsSet , "-");
 			}
 		}
 		if (deletedClassAxiomsAsLabels != null){
@@ -243,7 +266,35 @@ public class OWLClassAxiomsInfo implements Serializable{
 		
 	}
 
+	/**
+	 * method for returning a set of String objects from OWLAnnotation objects
+	 * useful in particular for displaying changes in labels and synonyms
+	 * 
+	 * @return set of strings derived from the OWLAnnotation objects parameter
+	 */	
+	public Set<String> getLexicalAnnotationsAsStrings(Set<OWLAnnotation> classAnnotations){
+		
+		//initialise the Set for safe returning
+		Set<String> annotationsAsString = new HashSet<String>();
+		// Create iterator to walk through the elements in the set
+	    if (classAnnotations != null){
+	    	Iterator<OWLAnnotation> it = classAnnotations.iterator();
+	    	while (it.hasNext()) {
+	    		// Get element
+	    		OWLAnnotation annotation = it.next();
 
+	    		OWLLiteral val = (OWLLiteral) annotation.getValue();
+	    		OWLAnnotationProperty prop = annotation.getProperty();
+	    		if (prop.toString().trim().equals(labelProperty.toString().trim()))
+	    			annotationsAsString.add("Label " + "'" + val.getLiteral() + "'");
+	    		else
+	    			if (prop.toString().trim().equals(synProperty.toString().trim()))
+	    				annotationsAsString.add("Synonym " + "'" + val.getLiteral() + "'");
+	    	}
+	    }
+		return annotationsAsString;
+		
+	}
 
 	public void setWalkthrough(Set<?> iteratorSet){
 		// Create iterator to walk through the elements in the set
