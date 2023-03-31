@@ -132,6 +132,45 @@ public class OntologyChangesBean {
 				}
 			}
 			
+
+		    // add deleted annotations
+		    Set<String> deletedAnnotations = singleChangedClass.getDeletedAnnotations();
+		    if (deletedAnnotations != null) {
+		    	Iterator<String> it = deletedAnnotations.iterator();
+		        while (it.hasNext()) {
+		          String label = it.next();
+		          // strip out any chevrons that owl-api spits out
+		          // when there is only a uri as this breaks the xml
+		          label = label.replaceAll("<", "");
+		          label = label.replaceAll(">", "");
+
+		          // check the label for any reserved xml characters and replace them with correct encoding
+		          String finalLabel = checkForReservedXMLCharacter(label);
+
+		          String annotationXML = ("<deletedAnnotation>" + finalLabel + "</deletedAnnotation>");
+		          this.classesWithDifferencesAsXML.add(annotationXML);
+		        }
+		    }
+
+		    // add new annotations
+		    Set<String> newAnnotations = singleChangedClass.getNewAnnotations();
+		      if (newAnnotations != null) {
+		        Iterator<String> it = newAnnotations.iterator();
+		        while (it.hasNext()) {
+		          String label = it.next();
+		          // strip out any chevrons that owl-api spits out
+		          // when there is only a uri as this breaks the xml
+		          label = label.replaceAll("<", "");
+		          label = label.replaceAll(">", "");
+
+		          // check the label for any reserved xml characters and replace them with correct encoding
+		          String finalLabel = checkForReservedXMLCharacter(label);
+
+		          String annotationXML = ("<newAnnotation>" + finalLabel + "</newAnnotation>");
+		          this.classesWithDifferencesAsXML.add(annotationXML);
+		        }
+		      }
+			
 			//add deleted axioms
 			Set<String> deletedAxioms  = singleChangedClass.getDeletedClassAxiomsAsLabels();
 			if(deletedAxioms != null){
@@ -246,20 +285,20 @@ public class OntologyChangesBean {
 			
 			
 			//add deleted axioms
-			Set<String> deletedAxioms  = singleClass.getDeletedClassAxiomsAsLabels();
-			if(deletedAxioms != null){
-				Iterator<String> it = deletedAxioms.iterator();
-				while(it.hasNext()){
-					String label = it.next();
-					//strip out any chevrons that owl-api spits out 
-					//when there is only a uri as this breaks the xml
-					label = label.replaceAll("<", "");
-					label = label.replaceAll(">", "");
-					
-					String axiomXML = ("<deletedAxiom>" + label + "</deletedAxiom>");
-					this.newClassesAsXML.add(axiomXML);
-				}
-			}
+//			Set<String> deletedAxioms  = singleClass.getDeletedClassAxiomsAsLabels();
+//			if(deletedAxioms != null){
+//				Iterator<String> it = deletedAxioms.iterator();
+//				while(it.hasNext()){
+//					String label = it.next();
+//					//strip out any chevrons that owl-api spits out 
+//					//when there is only a uri as this breaks the xml
+//					label = label.replaceAll("<", "");
+//					label = label.replaceAll(">", "");
+//					
+//					String axiomXML = ("<deletedAxiom>" + label + "</deletedAxiom>");
+//					this.newClassesAsXML.add(axiomXML);
+//				}
+//			}
 			
 
 			//add new axioms
@@ -333,27 +372,30 @@ public class OntologyChangesBean {
 					label = label.replaceAll("<", "");
 					label = label.replaceAll(">", "");
 					
-					String labelXML = ("<classLabel>" + label + "</classLabel>");
+			        // check the label for any reserved xml characters and replace them with correct encoding
+			        String finalLabel = checkForReservedXMLCharacter(label);					
+					
+					String labelXML = ("<classLabel>" + finalLabel + "</classLabel>");
 					//add to list
 					this.deletedClassesAsXML.add(labelXML);
 				}
 			}
 			
 			//add deleted axioms
-			Set<String> deletedAxioms  = singleClass.getDeletedClassAxiomsAsLabels();
-			if(deletedAxioms != null){
-				Iterator<String> it = deletedAxioms.iterator();
-				while(it.hasNext()){
-					String label = it.next();
-					//strip out any chevrons that owl-api spits out 
-					//when there is only a uri as this breaks the xml
-					label = label.replaceAll("<", "");
-					label = label.replaceAll(">", "");
-					
-					String axiomXML = ("<deletedAxiom>" + label + "</deletedAxiom>");
-					this.deletedClassesAsXML.add(axiomXML);
-				}
-			}
+//			Set<String> deletedAxioms  = singleClass.getDeletedClassAxiomsAsLabels();
+//			if(deletedAxioms != null){
+//				Iterator<String> it = deletedAxioms.iterator();
+//				while(it.hasNext()){
+//					String label = it.next();
+//					//strip out any chevrons that owl-api spits out 
+//					//when there is only a uri as this breaks the xml
+//					label = label.replaceAll("<", "");
+//					label = label.replaceAll(">", "");
+//					
+//					String axiomXML = ("<deletedAxiom>" + label + "</deletedAxiom>");
+//					this.deletedClassesAsXML.add(axiomXML);
+//				}
+//			}
 			
 
 			//add new axioms
@@ -367,7 +409,11 @@ public class OntologyChangesBean {
 					label = label.replaceAll("<", "");
 					label = label.replaceAll(">", "");
 					
-					String axiomXML = ("<newAxiom>" + label + "</newAxiom>");
+					// check the label for any reserved xml characters and replace them with correct encoding
+			        String finalLabel = checkForReservedXMLCharacter(label);
+					
+			        // new axioms in onto2 are deleted ones in onto1
+					String axiomXML = ("<deletedAxiom>" + finalLabel + "</deletedAxiom>");
 					this.deletedClassesAsXML.add(axiomXML);
 				}
 			}
