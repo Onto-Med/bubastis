@@ -3,18 +3,15 @@ package uk.ac.ebi.efo.bubastis;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.search.EntitySearcher;
-import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 import uk.ac.ebi.efo.bubastis.exceptions.Ontology1LoadException;
 import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
-import uk.ac.manchester.cs.owl.owlapi.OWLClassAxiomImpl;
-import uk.ac.manchester.cs.owl.owlapi.OWLClassExpressionImpl;
-import uk.ac.manchester.cs.owl.owlapi.OWLClassImpl;
 
 
 /**
@@ -26,6 +23,10 @@ import uk.ac.manchester.cs.owl.owlapi.OWLClassImpl;
  *          Diff results can be output to xml file using the writeDiffAsXMLFile method
  */
 public class CompareOntologies {
+    
+    public static final IRI CODE_IRI = IRI.create("https://top.smith.care/ontology/codesystem#code");
+    
+    private List<IRI> annotationPropertyIRIs;
 
     //class fields--------------------------------------------------
     private ArrayList<OWLClassAxiomsInfo> classesWithDifferences = new ArrayList<OWLClassAxiomsInfo>();
@@ -34,9 +35,6 @@ public class CompareOntologies {
     private String lineSeparator = System.getProperty("line.separator");
     public OntologyChangesBean changeBean = new OntologyChangesBean();
     
-    IRI labelIRI;
-    IRI synIRI;
-
     /**
      * default constructor
      */
@@ -50,7 +48,7 @@ public class CompareOntologies {
      * @param ontology2Location - location of second ontology - the newer ontology in most cases
      * @throws OWLOntologyCreationException
      */
-    public void doFindAllChanges(String ontology1Location, String ontology2Location, IRI labelIRI, IRI synIRI) throws Ontology1LoadException, Ontology2LoadException {
+    public void doFindAllChanges(String ontology1Location, String ontology2Location, List<IRI> annotationPropertyIRIs) throws Ontology1LoadException, Ontology2LoadException {
 
         //Create 2 OWLOntologyManager which manages a set of ontologies
         //An ontology is unique within an ontology manager.
@@ -93,7 +91,7 @@ public class CompareOntologies {
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
-                ontology1, ontology2, labelIRI, synIRI);
+                ontology1, ontology2, annotationPropertyIRIs);
 
     }
 
@@ -107,7 +105,7 @@ public class CompareOntologies {
      * @throws Ontology1LoadException
      * @throws OWLOntologyCreationException
      */
-    public void doFindAllChanges(File ontologyFile1, File ontologyFile2, IRI labelIRI, IRI synIRI) throws Ontology1LoadException, Ontology2LoadException {
+    public void doFindAllChanges(File ontologyFile1, File ontologyFile2, List<IRI> annotationPropertyIRIs) throws Ontology1LoadException, Ontology2LoadException {
         //Create 2 OWLOntologyManager which manages a set of ontologies
         //An ontology is unique within an ontology manager.
         //To load multiple copies of an ontology, multiple managers are required.
@@ -144,7 +142,7 @@ public class CompareOntologies {
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
-                ontology1, ontology2, labelIRI, synIRI);
+                ontology1, ontology2, annotationPropertyIRIs);
 
     }
 
@@ -156,7 +154,7 @@ public class CompareOntologies {
      * @param ontologyFile2     - second ontology to be read from file
      * @throws OWLOntologyCreationException
      */
-    public void doFindAllChanges(String ontology1Location, File ontologyFile2, IRI labelIRI, IRI synIRI) throws OWLOntologyCreationException {
+    public void doFindAllChanges(String ontology1Location, File ontologyFile2, List<IRI> annotationPropertyIRIs) throws OWLOntologyCreationException {
         //set locations of ontologies for later displaying
         changeBean.setOntology1Location(ontology1Location);
         changeBean.setOntology2Location(ontologyFile2.toString());
@@ -189,7 +187,7 @@ public class CompareOntologies {
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
-                ontology1, ontology2, labelIRI, synIRI);
+                ontology1, ontology2, annotationPropertyIRIs);
 
 
     }
@@ -202,7 +200,7 @@ public class CompareOntologies {
      * @param ontology2Location - second ontology to be read from URL
      * @throws OWLOntologyCreationException
      */
-    public void doFindAllChanges(File ontologyFile1, String ontology2Location, IRI labelIRI, IRI synIRI) throws OWLOntologyCreationException {
+    public void doFindAllChanges(File ontologyFile1, String ontology2Location, List<IRI> annotationPropertyIRIs) throws OWLOntologyCreationException {
         //set locations of ontologies for later displaying
         changeBean.setOntology1Location(ontologyFile1.toString());
         changeBean.setOntology2Location(ontology2Location);
@@ -234,7 +232,7 @@ public class CompareOntologies {
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
-                ontology1, ontology2, labelIRI, synIRI);
+                ontology1, ontology2, annotationPropertyIRIs);
 
     }
 
@@ -249,10 +247,9 @@ public class CompareOntologies {
      * @param ont2     second ontology to compare to ont1 (the newer ontology in most cases)
      */
     public void doFindAllChanges(OWLOntologyManager manager1, OWLOntologyManager manager2,
-                                 OWLOntology ont1, OWLOntology ont2, IRI labelIRI, IRI synIRI) {
+                                 OWLOntology ont1, OWLOntology ont2, List<IRI> annotationPropertyIRIs) {
 
-        this.labelIRI = labelIRI;
-    	this.synIRI = synIRI;
+      this.annotationPropertyIRIs = annotationPropertyIRIs;
     	this.classesWithDifferences = compareAllClassAxioms(manager1, ont1, manager2, ont2);
         this.newClasses = findNewClasses(manager1, ont1, manager2, ont2);
         this.setDeletedClasses(findDeletedClasses(manager1, ont1, manager2, ont2));
@@ -279,8 +276,7 @@ public class CompareOntologies {
 
         
     	OWLDataFactory df = manager1.getOWLDataFactory();
-    	OWLAnnotationProperty synProperty = df.getOWLAnnotationProperty(synIRI);
-    	OWLAnnotationProperty labelProperty = df.getOWLAnnotationProperty(labelIRI);
+      List<OWLAnnotationProperty> annotationProperties = annotationPropertyIRIs.stream().map(df::getOWLAnnotationProperty).collect(Collectors.toList());
 
     	ArrayList<OWLClassAxiomsInfo> classDifferences = new ArrayList<OWLClassAxiomsInfo>();
         //get all classes from first ontology and walk through them
@@ -294,12 +290,13 @@ public class CompareOntologies {
             //get all the axioms from this 2nd ontology class
             Set<OWLClassAxiom> ont2ClassAxiomsSet = ont2.getAxioms(ont2Class);
             
-            Collection<OWLAnnotation> ont1ClassAnnotationPropertiesSet = 
-            		EntitySearcher.getAnnotations(ont1Class.getIRI(), ont1, synProperty);
-            ont1ClassAnnotationPropertiesSet.addAll(EntitySearcher.getAnnotations(ont1Class.getIRI(), ont1, labelProperty));
-            Collection<OWLAnnotation> ont2ClassAnnotationPropertiesSet =
-            		EntitySearcher.getAnnotations(ont1Class.getIRI(), ont2, synProperty);
-            ont2ClassAnnotationPropertiesSet.addAll(EntitySearcher.getAnnotations(ont1Class.getIRI(), ont2, labelProperty));
+            HashSet<OWLAnnotation> ont1ClassAnnotationPropertiesSet = new HashSet<>();
+            HashSet<OWLAnnotation> ont2ClassAnnotationPropertiesSet = new HashSet<>();
+            annotationProperties.forEach(annotationProperty -> {
+                ont1ClassAnnotationPropertiesSet.addAll(EntitySearcher.getAnnotations(ont1Class.getIRI(), ont1, annotationProperty));
+                ont2ClassAnnotationPropertiesSet.addAll(EntitySearcher.getAnnotations(ont1Class.getIRI(), ont2, annotationProperty));
+            });
+            
             if (ont2ClassAnnotationPropertiesSet.size() != 0) {
             	if (!ont1ClassAnnotationPropertiesSet.equals(ont2ClassAnnotationPropertiesSet)) {
             		Set<OWLAnnotation> newAnnotations =
@@ -309,9 +306,9 @@ public class CompareOntologies {
                 			new HashSet<OWLAnnotation>(ont1ClassAnnotationPropertiesSet);
                 	deletedAnnotations.removeAll(ont2ClassAnnotationPropertiesSet);
                 	OWLClassAxiomsInfo tempDiffs = new OWLClassAxiomsInfo(ont1Class.getIRI(), newAnnotations, 
-                			deletedAnnotations, labelProperty, synProperty);
+                			deletedAnnotations, annotationProperties);
                 	OWLAnnotationProperty label =
-                			df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
+                			df.getOWLAnnotationProperty(CODE_IRI);
                 	Set<OWLAnnotation> classLabels =
                 			new HashSet<>(EntitySearcher.getAnnotations(ont1Class, ont1, label));
                 	tempDiffs.setClassLabels(classLabels);
@@ -344,7 +341,7 @@ public class CompareOntologies {
                     //get the rdfs label(s) of the class in question, first create IRI for rdfs label
                     //and create the corresponding OWLAnnotationProperty
                     //OWLDataFactory df = manager1.getOWLDataFactory();
-                    OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
+                    OWLAnnotationProperty label = df.getOWLAnnotationProperty(CODE_IRI);
 
                     Set<OWLAnnotation> classLabels = new HashSet<>(EntitySearcher.getAnnotations(ont1Class,ont1,label));
                     //add rdfs labels info to the class information
@@ -404,7 +401,7 @@ public class CompareOntologies {
                 //get the rdfs label(s) of the class in question, first create IRI for rdfs label
                 //and create the corresponding OWLAnnotationProperty
                 OWLDataFactory df = manager1.getOWLDataFactory();
-                OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
+                OWLAnnotationProperty label = df.getOWLAnnotationProperty(CODE_IRI);
 
                 Set<OWLAnnotation> classLabels = new HashSet<>(EntitySearcher.getAnnotations(ont2Class,ont2,label));
 

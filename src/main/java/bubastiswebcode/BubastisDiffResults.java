@@ -7,6 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 import javax.servlet.RequestDispatcher;
@@ -59,8 +62,7 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 				
 				String ontology1Location = req.getParameter("ontology1url");
 				String ontology2Location = req.getParameter("ontology2url");
-				IRI labelIRI = IRI.create( req.getParameter("labelIRI") );
-				IRI synIRI = IRI.create( req.getParameter("synIRI") );
+				List<IRI> annotationPropertyIRIs = Arrays.stream(req.getParameter("annotationPropertyIRIs").split(" ")).map(iriString -> IRI.create(iriString)).collect(Collectors.toList());
 				
 				//if the first url is empty or null then throw an exception and report the problem
 				if(ontology1Location.isEmpty() || ontology1Location == null){
@@ -89,7 +91,7 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 				
 				
 				//perform ontology change analysis
-				this.performDiff(ontology1Location, ontology2Location, labelIRI, synIRI, req, res);	
+				this.performDiff(ontology1Location, ontology2Location, annotationPropertyIRIs, req, res);
 				
 			}			
 			//otherwise if it is multipart and contains at least one file
@@ -113,10 +115,9 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 					if (ontologyFile2 != null){
 						System.out.println("length file ontology2: " + ontologyFile2.length());
 						
-						IRI labelIRI = IRI.create( req.getParameter("labelIRI") );
-						IRI synIRI = IRI.create( req.getParameter("synIRI") );
+						List<IRI> annotationPropertyIRIs = Arrays.stream(req.getParameter("annotationPropertyIRIs").split(" ")).map(iriString -> IRI.create(iriString)).collect(Collectors.toList());
 						//now do the diff
-						this.performDiff(ontology1URL, ontologyFile2, labelIRI, synIRI, req, res);
+						this.performDiff(ontology1URL, ontologyFile2, annotationPropertyIRIs, req, res);
 						if(ontologyFile2.exists()){
 							boolean deleted = ontologyFile2.delete();
 							if(deleted) System.out.println("deleted ontologyFile2");
@@ -138,11 +139,10 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 					File ontologyFile1 = multi.getFile("ontology1file");
 					if (ontologyFile1 != null){
 						System.out.println("length file ontology1: " + ontologyFile1.length());
-
-						IRI labelIRI = IRI.create( req.getParameter("labelIRI") );
-						IRI synIRI = IRI.create( req.getParameter("synIRI") );
+						
+						List<IRI> annotationPropertyIRIs = Arrays.stream(req.getParameter("annotationPropertyIRIs").split(" ")).map(iriString -> IRI.create(iriString)).collect(Collectors.toList());
 						//now do the diff
-						this.performDiff(ontologyFile1, ontology2URL, labelIRI, synIRI, req, res);
+						this.performDiff(ontologyFile1, ontology2URL, annotationPropertyIRIs, req, res);
 						if(ontologyFile1.exists()){
 							boolean deleted = ontologyFile1.delete();
 							if(deleted) System.out.println("deleted ontologyFile1");
@@ -184,10 +184,9 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 						throw new NullPointerException();
 					}
 					
-					IRI labelIRI = IRI.create( req.getParameter("labelIRI") );
-					IRI synIRI = IRI.create( req.getParameter("synIRI") );
+					List<IRI> annotationPropertyIRIs = Arrays.stream(req.getParameter("annotationPropertyIRIs").split(" ")).map(iriString -> IRI.create(iriString)).collect(Collectors.toList());
 					//perform ontology change analysis
-					this.performDiff(ontologyFile1, ontologyFile2, labelIRI, synIRI, req, res);
+					this.performDiff(ontologyFile1, ontologyFile2, annotationPropertyIRIs, req, res);
 						
 					//clean up the files just read by deleting from temp
 					if(ontologyFile1.exists()){
@@ -311,12 +310,12 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 		 * @param res
 		 * @throws OWLOntologyCreationException 
 		 */
-		private void performDiff(String ontology1Location, String ontology2Location, IRI labelIRI, IRI synIRI, HttpServletRequest req,
-				HttpServletResponse res) throws OWLOntologyCreationException {
+		private void performDiff(String ontology1Location, String ontology2Location, List<IRI> annotationPropertyIRIs, HttpServletRequest req,
+														 HttpServletResponse res) throws OWLOntologyCreationException {
 			
 			CompareOntologies bubastis = new CompareOntologies();
 
-			bubastis.doFindAllChanges(ontology1Location, ontology2Location, labelIRI, synIRI);
+			bubastis.doFindAllChanges(ontology1Location, ontology2Location, annotationPropertyIRIs);
 				
 			//after diff is done, make all data accessible to the jsp which will display it
 			this.writeDataToBean(req, res, bubastis, ontology1Location, ontology2Location);	
@@ -337,11 +336,11 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 		 * @param res
 		 * @throws OWLOntologyCreationException 
 		 */
-		private void performDiff(File ontologyFile1, File ontologyFile2, IRI labelIRI, IRI synIRI, HttpServletRequest req,
+		private void performDiff(File ontologyFile1, File ontologyFile2, List<IRI> annotationPropertyIRIs, HttpServletRequest req,
 				HttpServletResponse res) throws OWLOntologyCreationException {
 			
 			CompareOntologies bubastis = new CompareOntologies();
-			bubastis.doFindAllChanges(ontologyFile1, ontologyFile2, labelIRI, synIRI);
+			bubastis.doFindAllChanges(ontologyFile1, ontologyFile2, annotationPropertyIRIs);
 			
 			String ontology1Location = ontologyFile1.getName();
 			String ontology2Location = ontologyFile2.getName();
@@ -355,17 +354,17 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 		 * using the CompareOntologies class. Write the output of this diff to a class level bean, 
 		 * changeBean which enables all results to be obtained
 		 * 
-		 * @param ontologyFile1 - the location of the first local ontology file
+		 * @param ontology1Location - the location of the first local ontology file
 		 * @param ontologyFile2 - the location of the second local ontology file
 		 * @param req
 		 * @param res
 		 * @throws OWLOntologyCreationException 
 		 */
-		private void performDiff(String ontology1Location, File ontologyFile2, IRI labelIRI, IRI synIRI, HttpServletRequest req,
+		private void performDiff(String ontology1Location, File ontologyFile2, List<IRI> annotationPropertyIRIs, HttpServletRequest req,
 				HttpServletResponse res) throws OWLOntologyCreationException {
 			
 			CompareOntologies bubastis = new CompareOntologies();
-			bubastis.doFindAllChanges(ontology1Location, ontologyFile2, labelIRI, synIRI);
+			bubastis.doFindAllChanges(ontology1Location, ontologyFile2, annotationPropertyIRIs);
 			
 			String ontology2Location = ontologyFile2.getName();
 			//after diff is done, make all data accessible to the jsp which will display it
@@ -384,11 +383,11 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 		 * @param res
 		 * @throws OWLOntologyCreationException 
 		 */
-		private void performDiff(File ontologyFile1, String ontology2Location, IRI labelIRI, IRI synIRI, HttpServletRequest req,
+		private void performDiff(File ontologyFile1, String ontology2Location, List<IRI> annotationPropertyIRIs, HttpServletRequest req,
 				HttpServletResponse res) throws OWLOntologyCreationException {
 			
 			CompareOntologies bubastis = new CompareOntologies();
-			bubastis.doFindAllChanges(ontologyFile1, ontology2Location, labelIRI, synIRI);
+			bubastis.doFindAllChanges(ontologyFile1, ontology2Location, annotationPropertyIRIs);
 			
 			
 			String ontology1Location = ontologyFile1.getName();

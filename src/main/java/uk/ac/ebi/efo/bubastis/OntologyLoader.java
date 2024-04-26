@@ -9,7 +9,6 @@ package uk.ac.ebi.efo.bubastis;
 
 
 import org.semanticweb.owlapi.search.EntitySearcher;
-import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import org.semanticweb.owlapi.model.*;
 
 import java.util.HashSet;
@@ -48,7 +47,7 @@ public class OntologyLoader {
 			//print out rdfs label for the class too
 			//Firstly, create data factory from the manager then get the IRI for rdfs:label 
 			OWLDataFactory df = this.manager.getOWLDataFactory(); 
-			OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()); 
+			OWLAnnotationProperty label = df.getOWLAnnotationProperty(CompareOntologies.CODE_IRI);
 			
 			//now get all annotations that are rdfs:labels on the class
 			for(OWLAnnotation annotation : new HashSet<>(EntitySearcher.getAnnotations(cls,ontology,label))) {

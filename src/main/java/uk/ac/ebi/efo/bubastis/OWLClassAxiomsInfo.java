@@ -3,18 +3,15 @@ package uk.ac.ebi.efo.bubastis;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import java.io.StringWriter;
-import java.io.PrintWriter;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.OWLObjectRenderer;
 import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxOWLObjectRendererImpl;
-import org.semanticweb.owlapi.manchestersyntax.renderer.ManchesterOWLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.util.ShortFormProvider;
-import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 
 
@@ -38,8 +35,8 @@ public class OWLClassAxiomsInfo implements Serializable{
 	private Set<String> deletedClassAxiomsAsLabels;
 	private Set<OWLAnnotation> newAnnotationsSet;
 	private Set<OWLAnnotation> deletedAnnotationsSet;
-	private OWLAnnotationProperty labelProperty;
-	private OWLAnnotationProperty synProperty;
+	
+	private List<OWLAnnotationProperty> annotationProperties;
 	
 	
 	//constructor
@@ -60,7 +57,7 @@ public class OWLClassAxiomsInfo implements Serializable{
 	
 	
 	//constructor
-	public OWLClassAxiomsInfo(IRI classIRI, Set<OWLAnnotation> classLabels, Set<OWLClassAxiom> newClassAxiomsSet, 
+	public OWLClassAxiomsInfo(IRI classIRI, Set<OWLAnnotation> classLabels, Set<OWLClassAxiom> newClassAxiomsSet,
 							  Set<OWLClassAxiom> deletedClassAxiomsSet) {
 		this.classIRI = classIRI;
 		this.classLabels = classLabels;
@@ -72,11 +69,9 @@ public class OWLClassAxiomsInfo implements Serializable{
 	
 	//constructor
 	public OWLClassAxiomsInfo(IRI classIRI, Set<OWLAnnotation> newAnnotationsSet, 
-							  Set<OWLAnnotation> deletedAnnotationsSet, OWLAnnotationProperty labelProperty,
-		      				  OWLAnnotationProperty synProperty) {
+							  Set<OWLAnnotation> deletedAnnotationsSet, List<OWLAnnotationProperty> annotationProperties) {
 		this.classIRI = classIRI;
-		this.labelProperty = labelProperty;
-		this.synProperty = synProperty;
+		this.annotationProperties = annotationProperties;
 		
 		this.newAnnotationsSet = newAnnotationsSet;
 		this.deletedAnnotationsSet = deletedAnnotationsSet;
@@ -285,11 +280,7 @@ public class OWLClassAxiomsInfo implements Serializable{
 
 	    		OWLLiteral val = (OWLLiteral) annotation.getValue();
 	    		OWLAnnotationProperty prop = annotation.getProperty();
-	    		if (prop.toString().trim().equals(labelProperty.toString().trim()))
-	    			annotationsAsString.add("Label " + "'" + val.getLiteral() + "'");
-	    		else
-	    			if (prop.toString().trim().equals(synProperty.toString().trim()))
-	    				annotationsAsString.add("Synonym " + "'" + val.getLiteral() + "'");
+    			annotationsAsString.add(prop.getIRI().getShortForm() + " " + "'" + val.getLiteral() + "'");
 	    	}
 	    }
 		return annotationsAsString;
@@ -369,7 +360,7 @@ public class OWLClassAxiomsInfo implements Serializable{
 		    		//and create the corresponding OWLAnnotationProperty
 		    		OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 		    		OWLDataFactory df = manager.getOWLDataFactory(); 
-					OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI()); 
+					OWLAnnotationProperty label = df.getOWLAnnotationProperty(CompareOntologies.CODE_IRI);
 					
 		    		Set<OWLAnnotation> entityLabels = new HashSet<>(EntitySearcher.getAnnotations(e,ontology,label));
 		    		
@@ -422,7 +413,7 @@ public class OWLClassAxiomsInfo implements Serializable{
 
             OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
             OWLDataFactory df = manager.getOWLDataFactory();
-            OWLAnnotationProperty label = df.getOWLAnnotationProperty(OWLRDFVocabulary.RDFS_LABEL.getIRI());
+            OWLAnnotationProperty label = df.getOWLAnnotationProperty(CompareOntologies.CODE_IRI);
 
             Set<OWLAnnotation> entityLabels = new HashSet<>(EntitySearcher.getAnnotations(entity,ontology,label));
 
