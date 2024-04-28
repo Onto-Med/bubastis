@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+import care.smith.top.terminology.codes.versioning.TopVersionOntologyDiffRDFRenderer;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.search.EntitySearcher;
@@ -75,6 +77,7 @@ public class CompareOntologies {
         }
         System.out.println("loading ontology 1 complete");
         changeBean.setOntology1Location(ontology1Location);
+        changeBean.setOntology1(ontology1);
 
         //now load ontology2 from URL using the OntologyLoader class
         //can also load file in form for example: "file:/H://ontologyname.owl"
@@ -88,6 +91,7 @@ public class CompareOntologies {
         }
         changeBean.setOntology2Location(ontology2Location);
         System.out.println("loading ontology 2 complete");
+        changeBean.setOntology2(ontology2);
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
@@ -127,6 +131,7 @@ public class CompareOntologies {
         System.out.println("loading ontology 1 complete");
         //set locations of ontologies for later displaying
         changeBean.setOntology1Location(ontologyFile1.toString());
+        changeBean.setOntology1(ontology1);
 
         //load ontology 2 from file
         try {
@@ -139,6 +144,7 @@ public class CompareOntologies {
         System.out.println("loading ontology 2 complete");
         //set locations of ontologies for later displaying
         changeBean.setOntology2Location(ontologyFile2.toString());
+        changeBean.setOntology2(ontology2);
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
@@ -179,11 +185,13 @@ public class CompareOntologies {
         OWLOntology ontology1 = loader.loadOntology();
         System.out.println("loading ontology 1 complete");
         changeBean.setOntology1Location(ontology1Location);
+        changeBean.setOntology1(ontology1);
 
         //load ontology 2 from file
         OWLOntology ontology2 = manager2.loadOntologyFromOntologyDocument(ontologyFile2);
         System.out.println("loading ontology 2 complete");
         changeBean.setOntology2Location(ontologyFile2.toString());
+        changeBean.setOntology2(ontology2);
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
@@ -218,6 +226,7 @@ public class CompareOntologies {
         OWLOntology ontology1 = manager1.loadOntologyFromOntologyDocument(ontologyFile1);
         System.out.println("loading ontology 1 complete");
         changeBean.setOntology1Location(ontologyFile1.toString());
+        changeBean.setOntology1(ontology1);
 
         //load ontology2 from URL using the OntologyLoader class
         //can also load file in form for example: "file:/H://experimentalfactors.owl"
@@ -229,6 +238,7 @@ public class CompareOntologies {
         OWLOntology ontology2 = loader.loadOntology();
         System.out.println("loading ontology 2 complete");
         changeBean.setOntology2Location(ontology2Location);
+        changeBean.setOntology2(ontology2);
 
         //now chain to doFindAllChanges with new parameters
         this.doFindAllChanges(manager1, manager2,
@@ -488,6 +498,16 @@ public class CompareOntologies {
             e.printStackTrace();
         }
 
+    }
+    
+    public void writeDiffAsRDFFile(String filePath, RDFFormat format) {
+        TopVersionOntologyDiffRDFRenderer renderer = new TopVersionOntologyDiffRDFRenderer();
+      try {
+        renderer.writeDiffToFile(filePath, this.changeBean, format);
+      } catch (IOException e) {
+          System.out.println("An error occurred when attempt to write the diff to an RDF file at: " + filePath);
+          e.printStackTrace();
+      }
     }
 
 

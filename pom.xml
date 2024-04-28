@@ -114,10 +114,16 @@
         </dependency>
 
 
+        <dependency>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-client</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>
-        <repository>
+    <repository>
             <id>Sonatype repository</id>
             <name>Sonatype's Maven repository</name>
             <url>https://oss.sonatype.org/content/repositories/releases/</url>

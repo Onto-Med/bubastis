@@ -9,12 +9,17 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.semanticweb.owlapi.model.OWLOntology;
 
 
 public class OntologyChangesBean {
 
 	private String ontology1Location = "";
 	private String ontology2Location = "";
+	
+	private OWLOntology ontology1;
+	private OWLOntology ontology2;
+	
 	private ArrayList<OWLClassAxiomsInfo> classesWithDifferences = new ArrayList<OWLClassAxiomsInfo>();
 	private ArrayList<OWLClassAxiomsInfo> newClasses = new ArrayList<OWLClassAxiomsInfo>(); 
 	private ArrayList<OWLClassAxiomsInfo> deletedClasses = new ArrayList<OWLClassAxiomsInfo>();
@@ -37,6 +42,21 @@ public class OntologyChangesBean {
 		this.ontology2Location = ont2;
 	}
 	
+	public OWLOntology getOntology1() {
+		return ontology1;
+	}
+	
+	public void setOntology1(OWLOntology ontology1) {
+		this.ontology1 = ontology1;
+	}
+	
+	public OWLOntology getOntology2() {
+		return ontology2;
+	}
+	
+	public void setOntology2(OWLOntology ontology2) {
+		this.ontology2 = ontology2;
+	}
 	
 	public String getOntology1Location(){
 		return this.ontology1Location;

@@ -155,9 +155,17 @@ public class OWLClassAxiomsInfo implements Serializable{
 		return getLexicalAnnotationsAsStrings(deletedAnnotationsSet);
 	}
 	
+	public Set<OWLAnnotation> getDeletedRawAnnotations(){
+		return deletedAnnotationsSet;
+	}
+	
 	//get method to return the new annotations
 	public Set<String> getNewAnnotations(){
 		return getLexicalAnnotationsAsStrings(newAnnotationsSet);
+	}
+	
+	public Set<OWLAnnotation> getNewRawAnnotations(){
+		return newAnnotationsSet;
 	}
 	
 	public String getIRIAsString(){
