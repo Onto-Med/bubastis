@@ -5,10 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -113,7 +110,24 @@ public class OntologyFileWriter {
         fs.write("Number of classes changed: " + changeBean.getNumChangedClasses() + "\n");
         fs.write("Number of classes added: " + changeBean.getNumNewClasses() + "\n");
         fs.write("Number of classes deleted: " + changeBean.getNumDeletedClasses() + "\n \n");
-
+        
+        int newAxiomCount = 0;
+        int deletedAxiomCount = 0;
+        int newAnnotationCount = 0;
+        int deletedAnnotationCount = 0;
+        
+        for (OWLClassAxiomsInfo classInfo : changeBean.getClassesWithDifferences()) {
+            newAnnotationCount += Optional.ofNullable(classInfo.getNewRawAnnotations()).orElse(Collections.emptySet()).size();
+            deletedAnnotationCount += Optional.ofNullable(classInfo.getDeletedRawAnnotations()).orElse(Collections.emptySet()).size();
+            newAxiomCount += Optional.ofNullable(classInfo.getNewAxioms()).orElse(Collections.emptySet()).size();
+            deletedAxiomCount += Optional.ofNullable(classInfo.getDeletedAxioms()).orElse(Collections.emptySet()).size();
+        }
+        
+        fs.write("Number of class axioms added: " + newAxiomCount + "\n \n");
+        fs.write("Number of class axioms deleted: " + deletedAxiomCount + "\n \n");
+        fs.write("Number of annotations added: " + newAnnotationCount + "\n \n");
+        fs.write("Number of annotations deleted: " + deletedAnnotationCount + "\n \n");
+        
     }
 
 }
