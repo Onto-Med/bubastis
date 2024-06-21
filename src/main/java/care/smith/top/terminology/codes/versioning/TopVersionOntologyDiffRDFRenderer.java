@@ -44,24 +44,24 @@ public class TopVersionOntologyDiffRDFRenderer {
   public void writeDiffToFile(String filePath, OntologyChangesBean changeBean, RDFFormat format) throws IOException {
     ModelBuilder mob = new ModelBuilder();
     mob.
-            setNamespace("v", NS_CHANGES).
-            setNamespace("o1", changeBean.getOntology1().getOntologyID().getVersionIRI().get().toString() + "#").
-            setNamespace("o2", changeBean.getOntology2().getOntologyID().getVersionIRI().get().toString() + "#").
-            defaultGraph().add("o1:", "v:hasSuccessorVersion", "o2:").
-            namedGraph("o2:");
+            setNamespace("change", NS_CHANGES).
+            setNamespace("version1", changeBean.getOntology1().getOntologyID().getVersionIRI().get().toString() + "#").
+            setNamespace("version2", changeBean.getOntology2().getOntologyID().getVersionIRI().get().toString() + "#").
+            defaultGraph().add("version1:", "change:hasSuccessorVersion", "version2:").
+            namedGraph("version2:");
     
     Optional.ofNullable(changeBean.getNewClasses()).orElse(new ArrayList<>()).forEach(owlClassAxiomsInfo -> {
       BNode changeInstance = valueFactory.createBNode();
       mob.
               add(valueFactory.createIRI(owlClassAxiomsInfo.getIRIAsString()), PROPERTY_HASCHANGE, changeInstance).
-              add(changeInstance, RDF.TYPE, "v:Addition");
+              add(changeInstance, RDF.TYPE, "change:Addition");
     });
     
     Optional.ofNullable(changeBean.getDeletedClasses()).orElse(new ArrayList<>()).forEach(owlClassAxiomsInfo -> {
       BNode changeInstance = valueFactory.createBNode();
       mob.
               add(valueFactory.createIRI(owlClassAxiomsInfo.getIRIAsString()), PROPERTY_HASCHANGE, changeInstance).
-              add(changeInstance, RDF.TYPE, "v:Deletion");
+              add(changeInstance, RDF.TYPE, "change:Deletion");
     });
     
     Optional.ofNullable(changeBean.getClassesWithDifferences()).orElse(new ArrayList<>()).forEach(owlClassAxiomsInfo -> {
@@ -77,7 +77,7 @@ public class TopVersionOntologyDiffRDFRenderer {
             mob.
                     add(currentClassIRI, PROPERTY_HASCHANGE, changeInstance).
                     subject(changeInstance).
-                    add(RDF.TYPE, "v:SubTermAddition").
+                    add(RDF.TYPE, "change:SubTermAddition").
                     add(PROPERTY_NEWTERM, valueFactory.createIRI(scoa.getSuperClass().asOWLClass().getIRI().toString()));
           } else if (scoa.getSubClass().asOWLClass().getIRI().equals(owlClassAxiomsInfo.getIRI())) {
             // current class is subclass in axiom, so it has got a new super class
@@ -85,7 +85,7 @@ public class TopVersionOntologyDiffRDFRenderer {
             mob.
                     add(currentClassIRI, PROPERTY_HASCHANGE, changeInstance).
                     subject(changeInstance).
-                    add(RDF.TYPE, "v:SuperTermAddition").
+                    add(RDF.TYPE, "change:SuperTermAddition").
                     add(PROPERTY_NEWTERM, valueFactory.createIRI(scoa.getSubClass().asOWLClass().getIRI().toString()));
           } else {
             System.err.println("Warning: class " + currentClassIRI.getLocalName() + " does not appear in axiom but should: " + axiom);
@@ -97,7 +97,7 @@ public class TopVersionOntologyDiffRDFRenderer {
             mob.
                     add(currentClassIRI, PROPERTY_HASCHANGE, changeInstance).
                     subject(changeInstance).
-                    add(RDF.TYPE, "v:EquivalenceAddition").
+                    add(RDF.TYPE, "change:EquivalenceAddition").
                     add(PROPERTY_NEWTERM, valueFactory.createIRI(clazz.getIRI().toString()));
           });
         }
@@ -108,7 +108,7 @@ public class TopVersionOntologyDiffRDFRenderer {
         mob.
                 add(currentClassIRI, PROPERTY_HASCHANGE, changeInstance).
                 subject(changeInstance).
-                add(RDF.TYPE, "v:LabelAddition").
+                add(RDF.TYPE, "change:LabelAddition").
                 add(PROPERTY_ANNOATIONPROPERTY, valueFactory.createIRI(annotation.getProperty().getIRI().toString()));
         
         OWLLiteral annotationValue = annotation.getValue().asLiteral().get();
@@ -126,7 +126,7 @@ public class TopVersionOntologyDiffRDFRenderer {
             mob.
                     add(currentClassIRI, PROPERTY_HASCHANGE, changeInstance).
                     subject(changeInstance).
-                    add(RDF.TYPE, "v:SubTermDeletion").
+                    add(RDF.TYPE, "change:SubTermDeletion").
                     add(PROPERTY_OLDTERM, valueFactory.createIRI(scoa.getSuperClass().asOWLClass().getIRI().toString()));
           } else if (scoa.getSubClass().asOWLClass().getIRI().equals(owlClassAxiomsInfo.getIRI())) {
             // current class is subclass in axiom, so it has got a super class removed
@@ -134,7 +134,7 @@ public class TopVersionOntologyDiffRDFRenderer {
             mob.
                     add(currentClassIRI, PROPERTY_HASCHANGE, changeInstance).
                     subject(changeInstance).
-                    add(RDF.TYPE, "v:SuperTermDeletion").
+                    add(RDF.TYPE, "change:SuperTermDeletion").
                     add(PROPERTY_OLDTERM, valueFactory.createIRI(scoa.getSubClass().asOWLClass().getIRI().toString()));
           } else {
             System.err.println("Warning: class " + currentClassIRI.getLocalName() + " does not appear in axiom but should: " + axiom);
@@ -146,7 +146,7 @@ public class TopVersionOntologyDiffRDFRenderer {
             mob.
                     add(currentClassIRI, PROPERTY_HASCHANGE, changeInstance).
                     subject(changeInstance).
-                    add(RDF.TYPE, "v:EquivalenceDeletion").
+                    add(RDF.TYPE, "change:EquivalenceDeletion").
                     add(PROPERTY_OLDTERM, valueFactory.createIRI(clazz.getIRI().toString()));
           });
         }
@@ -157,7 +157,7 @@ public class TopVersionOntologyDiffRDFRenderer {
         mob.
                 add(currentClassIRI, PROPERTY_HASCHANGE, changeInstance).
                 subject(changeInstance).
-                add(RDF.TYPE, "v:LabelDeletion").
+                add(RDF.TYPE, "change:LabelDeletion").
                 add(PROPERTY_ANNOATIONPROPERTY, valueFactory.createIRI(annotation.getProperty().getIRI().toString()));
         
         OWLLiteral annotationValue = annotation.getValue().asLiteral().get();
