@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="https://top.smith.care/terminology/changes#"
+     xml:base="https://top.smith.care/terminology/changes"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="https://top.smith.care/terminology/changes">
+        <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1.0</owl:versionInfo>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#annotationProperty -->
+
+    <owl:AnnotationProperty rdf:about="https://top.smith.care/terminology/changes#annotationProperty"/>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#annotationValue -->
+
+    <owl:AnnotationProperty rdf:about="https://top.smith.care/terminology/changes#annotationValue"/>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#hasChange -->
+
+    <owl:AnnotationProperty rdf:about="https://top.smith.care/terminology/changes#hasChange">
+        <rdfs:range rdf:resource="https://top.smith.care/terminology/changes#TermChange"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#hasSuccessorVersion -->
+
+    <owl:AnnotationProperty rdf:about="https://top.smith.care/terminology/changes#hasSuccessorVersion"/>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#newLabel -->
+
+    <owl:AnnotationProperty rdf:about="https://top.smith.care/terminology/changes#newLabel">
+        <rdfs:domain rdf:resource="https://top.smith.care/terminology/changes#LexicalChange"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#newTerm -->
+
+    <owl:AnnotationProperty rdf:about="https://top.smith.care/terminology/changes#newTerm">
+        <rdfs:domain rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#oldLabel -->
+
+    <owl:AnnotationProperty rdf:about="https://top.smith.care/terminology/changes#oldLabel">
+        <rdfs:domain rdf:resource="https://top.smith.care/terminology/changes#LexicalChange"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#oldTerm -->
+
+    <owl:AnnotationProperty rdf:about="https://top.smith.care/terminology/changes#oldTerm">
+        <rdfs:domain rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#Addition -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#Addition">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#Deletion -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#Deletion">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#EquivalenceAddition -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#EquivalenceAddition">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#EquivalenceDeletion -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#EquivalenceDeletion">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#LabelAddition -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#LabelAddition">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#LexicalChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#LabelDeletion -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#LabelDeletion">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#LexicalChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#LexicalChange -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#LexicalChange">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#TermChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#Merging -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#Merging">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+        <rdfs:comment>The result of a merging operation of two terms.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#Recategorization -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#Recategorization">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+        <rdfs:comment>A recategorization change is the result of a moving operation of a term from one superterm (category) to another.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#Relabeling -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#Relabeling">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#LexicalChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#Replacement -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#Replacement">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#SemanticChange -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#SemanticChange">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#TermChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#Split -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#Split">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#SemanticChange"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#SubTermAddition -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#SubTermAddition">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#Recategorization"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#SubTermDeletion -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#SubTermDeletion">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#Recategorization"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#SuperTermAddition -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#SuperTermAddition">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#Recategorization"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#SuperTermDeletion -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#SuperTermDeletion">
+        <rdfs:subClassOf rdf:resource="https://top.smith.care/terminology/changes#Recategorization"/>
+    </owl:Class>
+    
+
+
+    <!-- https://top.smith.care/terminology/changes#TermChange -->
+
+    <owl:Class rdf:about="https://top.smith.care/terminology/changes#TermChange"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.26.2023-07-17T20:34:13Z) https://github.com/owlcs/owlapi -->
+
