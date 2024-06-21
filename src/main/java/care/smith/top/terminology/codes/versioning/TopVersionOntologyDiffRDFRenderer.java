@@ -30,21 +30,21 @@ public class TopVersionOntologyDiffRDFRenderer {
   
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
   
-  private static final String NS_VERSION = "https://top.smith.care/terminology/versioning#";
+  private static final String NS_CHANGES = "https://top.smith.care/terminology/changes#";
   
-  private static final IRI PROPERTY_HASCHANGE = SimpleValueFactory.getInstance().createIRI(NS_VERSION, "hasChange");
-  private static final IRI PROPERTY_NEWTERM = SimpleValueFactory.getInstance().createIRI(NS_VERSION, "newTerm");
-  private static final IRI PROPERTY_OLDTERM = SimpleValueFactory.getInstance().createIRI(NS_VERSION, "oldTerm");
-  private static final IRI PROPERTY_NEWLABEL = SimpleValueFactory.getInstance().createIRI(NS_VERSION, "newLabel");
-  private static final IRI PROPERTY_OLDLABEL = SimpleValueFactory.getInstance().createIRI(NS_VERSION, "oldLabel");
-  private static final IRI PROPERTY_ANNOATIONPROPERTY = SimpleValueFactory.getInstance().createIRI(NS_VERSION, "annotationProperty");
-  private static final IRI PROPERTY_ANNOATIONVALUE = SimpleValueFactory.getInstance().createIRI(NS_VERSION, "annotationValue");
-  private static final IRI PROPERTY_ANNOATIONDATATYPE = SimpleValueFactory.getInstance().createIRI(NS_VERSION, "annotationDatatype");
+  private static final IRI PROPERTY_HASCHANGE = SimpleValueFactory.getInstance().createIRI(NS_CHANGES, "hasChange");
+  private static final IRI PROPERTY_NEWTERM = SimpleValueFactory.getInstance().createIRI(NS_CHANGES, "newTerm");
+  private static final IRI PROPERTY_OLDTERM = SimpleValueFactory.getInstance().createIRI(NS_CHANGES, "oldTerm");
+  private static final IRI PROPERTY_NEWLABEL = SimpleValueFactory.getInstance().createIRI(NS_CHANGES, "newLabel");
+  private static final IRI PROPERTY_OLDLABEL = SimpleValueFactory.getInstance().createIRI(NS_CHANGES, "oldLabel");
+  private static final IRI PROPERTY_ANNOATIONPROPERTY = SimpleValueFactory.getInstance().createIRI(NS_CHANGES, "annotationProperty");
+  private static final IRI PROPERTY_ANNOATIONVALUE = SimpleValueFactory.getInstance().createIRI(NS_CHANGES, "annotationValue");
+  private static final IRI PROPERTY_ANNOATIONDATATYPE = SimpleValueFactory.getInstance().createIRI(NS_CHANGES, "annotationDatatype");
   
   public void writeDiffToFile(String filePath, OntologyChangesBean changeBean, RDFFormat format) throws IOException {
     ModelBuilder mob = new ModelBuilder();
     mob.
-            setNamespace("v", NS_VERSION).
+            setNamespace("v", NS_CHANGES).
             setNamespace("o1", changeBean.getOntology1().getOntologyID().getVersionIRI().get().toString() + "#").
             setNamespace("o2", changeBean.getOntology2().getOntologyID().getVersionIRI().get().toString() + "#").
             defaultGraph().add("o1:", "v:hasSuccessorVersion", "o2:").
