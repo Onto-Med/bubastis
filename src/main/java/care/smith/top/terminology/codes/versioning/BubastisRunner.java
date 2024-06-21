@@ -11,6 +11,7 @@ import uk.ac.ebi.efo.bubastis.exceptions.Ontology2LoadException;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +30,7 @@ public class BubastisRunner {
   public static void main(String[] args) {
     File baseDir = new File(args[0]);
     
-    List<File> files = Arrays.stream(baseDir.listFiles(file -> file.isFile() && file.getName().startsWith("test-") && file.getName().endsWith(".owl"))).sorted().collect(Collectors.toList());
+    List<File> files = Arrays.stream(Objects.requireNonNull(baseDir.listFiles(file -> file.isFile() && file.getName().endsWith(".owl")))).sorted().collect(Collectors.toList());
     
     File older = files.remove(0);
     while(!files.isEmpty()) {
@@ -38,11 +39,10 @@ public class BubastisRunner {
       try {
         CompareOntologies bubastis = new CompareOntologies();
         bubastis.doFindAllChanges(older, newer, annotationProperties);
+//        bubastis.writeDiffAsTextFile(new File(baseDir, older.getName() + "-" + newer.getName() + ".txt").getAbsolutePath());
         bubastis.writeDiffAsRDFFile(new File(baseDir, older.getName() + "-" + newer.getName() + ".trig").getAbsolutePath(), RDFFormat.TRIG);
         older = newer;
-      } catch (Ontology1LoadException e) {
-        throw new RuntimeException(e);
-      } catch (Ontology2LoadException e) {
+      } catch (Ontology1LoadException | Ontology2LoadException e) {
         throw new RuntimeException(e);
       }
     }
