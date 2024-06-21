@@ -2,13 +2,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>uk.ac.ebi.fgpt</groupId>
-    <artifactId>bubastis</artifactId>
-    <version>1.4.0</version>
-    <packaging>war</packaging>
+    <groupId>care.smith.top.terminology</groupId>
+    <artifactId>bubastis-semlex</artifactId>
+    <version>1.5.0</version>
+    <packaging>jar</packaging>
 
-    <name>bubastis</name>
-    <url>http://www.ebi.ac.uk/efo/bubastis</url>
+    <name>bubastis-semlex</name>
+    <url>https://github.com/Onto-Med/bubastis-semlex</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -123,7 +123,7 @@
     </dependencies>
 
     <repositories>
-    <repository>
+        <repository>
             <id>Sonatype repository</id>
             <name>Sonatype's Maven repository</name>
             <url>https://oss.sonatype.org/content/repositories/releases/</url>
